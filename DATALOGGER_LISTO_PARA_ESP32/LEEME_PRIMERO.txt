@@ -1,0 +1,39 @@
+DATALOGGER - PASOS RAPIDOS
+
+1) Abrir firmware/datalogger_esp32.ino en Arduino IDE.
+2) Revisar estas dos lineas:
+   const char* WIFI_SSID = "Data";
+   const char* WIFI_PASSWORD = "admin1234";
+   Podes usar esos mismos datos en el hotspot del celular o cambiarlos.
+3) Instalar librerias:
+   - Adafruit BME280 Library
+   - Adafruit Unified Sensor
+   - Adafruit GFX Library
+   - Adafruit SSD1306
+   - RTClib
+4) Seleccionar ESP32 Dev Module y puerto correcto. Monitor Serie: 115200.
+5) Subir el .ino.
+
+SI NO TENES LECTOR DE microSD:
+6) Deja la microSD puesta en el modulo y reinicia el ESP32.
+7) Conecta PC/celular a la misma red que el ESP32.
+8) Mira la IP en el Monitor Serie.
+9) Abri http://IP_DEL_ESP32/admin
+10) En microSD/www de este paquete, selecciona TODOS los archivos y subilos desde esa pagina.
+11) Al terminar, abri http://IP_DEL_ESP32/ o http://datalogger.local
+
+SI EL WIFI CONFIGURADO NO EXISTE:
+El ESP32 crea:
+  Red: DataLogger-ESP32
+  Clave: datalogger123
+  Direccion: http://192.168.4.1
+Luego podes entrar a http://192.168.4.1/admin para cargar el frontend.
+
+CONEXIONES YA PROBADAS:
+BME280: VCC 3V3, GND GND, SDA GPIO21, SCL GPIO22
+OLED:   VCC 3V3, GND GND, SDA GPIO21, SCL GPIO22
+DS3231: VCC 3V3, GND GND, SDA GPIO21, SCL GPIO22
+microSD: VCC 5V, GND GND, CS GPIO13, SCK GPIO18, MISO GPIO19, MOSI GPIO23
+
+La carpeta /data se crea automaticamente. Las mediciones se guardan en CSV por dia.
+El frontend incluido funciona localmente desde la microSD y usa Chart.js local, por lo que no necesita Internet para mostrar las mediciones.
