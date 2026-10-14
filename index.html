@@ -408,6 +408,7 @@ main a,main li{overflow-wrap:anywhere}
 <li>El apellido es <strong>Varilini</strong> (aparecía como Varilni).</li>
 <li>El informe nombraba un solo "IM"; en la Gantt hay dos: <strong>IM01</strong> (Dabbah) e <strong>IM02</strong> (Varilini).</li>
 <li>Los archivos de registro en la microSD son <strong>CSV</strong> (como en el firmware), no .xls.</li>
+<li>El sensor es el <strong>BME280</strong>, que sí mide humedad, igual que en el firmware del repositorio. La microSD usa el pin CS en GPIO13.</li>
 </ul></div></div>
 </section>
 
@@ -532,7 +533,7 @@ main a,main li{overflow-wrap:anywhere}
 <tr><td><strong>Datalogger</strong></td><td>Equipo que mide variables y las registra con fecha y hora de forma automática.</td></tr>
 <tr><td><strong>ESP32</strong></td><td>Microcontrolador con Wi-Fi que es el cerebro del datalogger.</td></tr>
 <tr><td><strong>MCU</strong></td><td>Microcontrolador: un chip que ejecuta el programa del datalogger.</td></tr>
-<tr><td><strong>BMP280</strong></td><td>Sensor de temperatura y presión. No mide humedad (ver 5.3).</td></tr>
+<tr><td><strong>BME280</strong></td><td>Sensor que mide temperatura, humedad y presión.</td></tr>
 <tr><td><strong>RTC (DS3231)</strong></td><td>Reloj de tiempo real: mantiene la fecha y la hora aunque se apague el equipo.</td></tr>
 <tr><td><strong>I2C / SPI</strong></td><td>Dos formas de conectar chips entre sí con pocos cables. I2C para sensores, pantalla y reloj; SPI para la microSD.</td></tr>
 <tr><td><strong>MQTT</strong></td><td>Protocolo liviano de mensajería: el datalogger "publica" mediciones y el servidor las recibe.</td></tr>
@@ -547,7 +548,7 @@ main a,main li{overflow-wrap:anywhere}
 
 <h3 id="s3-5"><span class="n">3.5</span>Referencias</h3>
 <ul>
-<li>Bosch Sensortec. (s. f.). <em>BMP280: Digital pressure sensor</em> [Hoja de datos]. <a href="https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/">https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/</a></li>
+<li>Bosch Sensortec. (s. f.). <em>BME280: Combined humidity and pressure sensor</em> [Hoja de datos]. <a href="https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/">https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/</a></li>
 <li>Eclipse Foundation. (s. f.). <em>Eclipse Mosquitto: An open source MQTT broker</em>. <a href="https://mosquitto.org/">https://mosquitto.org/</a></li>
 <li>Espressif Systems. (s. f.). <em>ESP32 series datasheet</em>. <a href="https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf">https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf</a></li>
 <li>Instituto Nacional de Tecnología Industrial. (s. f.). <em>INTI</em>. <a href="https://www.inti.gob.ar/">https://www.inti.gob.ar/</a></li>
@@ -569,7 +570,7 @@ main a,main li{overflow-wrap:anywhere}
 <p>El producto es una parte de un sistema mayor. Hoy el LABI tendrá un solo datalogger, pero con el tiempo podría sumar equipos nuevos, que se conectarían al mismo servidor y se monitorearían de forma remota desde la misma web.</p>
 <figure>
 <div class="arch">
- <div class="box"><small>Capa 1 · Dispositivo</small><h4>Datalogger</h4><ul><li>ESP32 + BMP280</li><li>Reloj RTC y pantalla OLED</li><li>microSD (respaldo)</li><li>Batería Li-ion</li></ul></div>
+ <div class="box"><small>Capa 1 · Dispositivo</small><h4>Datalogger</h4><ul><li>ESP32 + BME280</li><li>Reloj RTC y pantalla OLED</li><li>microSD (respaldo)</li><li>Batería Li-ion</li></ul></div>
  <div class="ar"></div>
  <div class="box"><small>Capa 2 · Servidor del INTI</small><h4>Red y datos</h4><ul><li>Wi-Fi + MQTT</li><li>Broker Mosquitto</li><li>Base de datos MariaDB</li></ul></div>
  <div class="ar"></div>
@@ -577,6 +578,7 @@ main a,main li{overflow-wrap:anywhere}
 </div>
 <figcaption><b>Figura 3.</b> Arquitectura del sistema en tres capas.</figcaption>
 </figure>
+<div class="callout"><div><b class="t">Prototipo y versión final</b><p>El repositorio de GitHub contiene hoy el <strong>prototipo</strong> del datalogger: el ESP32 guarda las mediciones en la microSD y sirve una web local. El producto final usa el <strong>servidor del INTI</strong>: el datalogger envía las mediciones por MQTT al broker, se guardan en MariaDB y la web se aloja en ese servidor. La web del prototipo es la base del dashboard final.</p></div></div>
 
 <h3 id="s4-2"><span class="n">4.2</span>Funcionalidad del producto</h3>
 <p>La función principal es que el equipo del LABI <strong>monitoree de forma remota las mediciones</strong> del datalogger durante las pruebas y ensayos que hace con sus robots y su material. Además:</p>
@@ -669,7 +671,6 @@ main a,main li{overflow-wrap:anywhere}
 <tr><td class="id">RF-10</td><td><strong>Autenticación.</strong> El acceso a la web requiere usuario y contraseña.</td><td><span class="badge b-alta">Alta</span></td><td>Sin credenciales válidas no se accede a ninguna pantalla.</td></tr>
 <tr><td class="id">RF-11</td><td><strong>Control local.</strong> El datalogger muestra fecha, hora y mediciones en su pantalla OLED, y un pulsador inicia y detiene el registro.</td><td><span class="badge b-media">Media</span> <span class="badge b-hw">HW</span></td><td>Se pulsa el botón y se comprueba que el registro arranca y se detiene.</td></tr>
 </tbody></table></div>
-<div class="todo" data-t="Sensor de humedad: el BMP280 no mide humedad (¿BME280?)"><b class="t">A completar por el equipo</b><p><strong>Problema a resolver para RF-01.</strong> El sensor que se está usando, el <strong>BMP280, mide temperatura y presión pero no humedad</strong>. Hay que reemplazarlo por un <strong>BME280</strong> (mismo conexionado I2C y librería muy parecida) o agregar un sensor de humedad aparte. Hasta decidirlo, la humedad de la base de datos es de prueba.</p></div>
 <div class="todo" data-t="Prioridades y formas de verificación: validarlas con el cliente"><b class="t">A completar por el equipo</b><p>Las prioridades y las formas de verificación son una propuesta. En el informe anterior varias prioridades estaban vacías. Revisarlas con el director del LABI.</p></div>
 
 <h4>Requerimientos no funcionales</h4>
@@ -722,23 +723,22 @@ main a,main li{overflow-wrap:anywhere}
 <thead><tr><th>ID</th><th>Componente</th><th>Función</th><th>Interfaz</th></tr></thead>
 <tbody>
 <tr><td class="id">HW-01</td><td>ESP32 DevKit WROOM-32 (38 pines)</td><td>Cerebro del datalogger y conexión Wi-Fi.</td><td>—</td></tr>
-<tr><td class="id">HW-02</td><td>Sensor BMP280</td><td>Mide temperatura y presión.</td><td>I2C · <code>0x76</code></td></tr>
-<tr><td class="id">HW-03</td><td>Sensor de humedad <span class="todo-i">A definir</span></td><td>Mide humedad (BME280 o sensor aparte).</td><td>I2C</td></tr>
-<tr><td class="id">HW-04</td><td>Pantalla OLED SSD1306 de 128×64</td><td>Muestra fecha, hora y mediciones en el equipo.</td><td>I2C · <code>0x3C</code></td></tr>
-<tr><td class="id">HW-05</td><td>Reloj RTC DS3231</td><td>Mantiene la fecha y la hora.</td><td>I2C · <code>0x68</code></td></tr>
-<tr><td class="id">HW-06</td><td>Módulo microSD</td><td>Guarda el respaldo en CSV.</td><td>SPI</td></tr>
-<tr><td class="id">HW-07</td><td>Pulsador</td><td>Inicia y detiene el registro.</td><td>GPIO4 (<code>INPUT_PULLUP</code>)</td></tr>
-<tr><td class="id">HW-08</td><td>Batería Li-ion 17350, 3,7 V, 850 mAh</td><td>Alimenta el equipo de forma autónoma.</td><td>—</td></tr>
-<tr><td class="id">HW-09</td><td>Módulo TP4056 con protección DW01A + FS8205</td><td>Carga la batería y la protege.</td><td>USB</td></tr>
-<tr><td class="id">HW-10</td><td>Elevador a 5 V (por ejemplo, MT3608)</td><td>Sube la tensión de la batería para alimentar la placa.</td><td><span class="todo-i">A confirmar si se consiguió</span></td></tr>
+<tr><td class="id">HW-02</td><td>Sensor BME280</td><td>Mide temperatura, humedad y presión.</td><td>I2C · <code>0x76</code></td></tr>
+<tr><td class="id">HW-03</td><td>Pantalla OLED SSD1306 de 128×64</td><td>Muestra fecha, hora y mediciones en el equipo.</td><td>I2C · <code>0x3C</code></td></tr>
+<tr><td class="id">HW-04</td><td>Reloj RTC DS3231</td><td>Mantiene la fecha y la hora.</td><td>I2C · <code>0x68</code></td></tr>
+<tr><td class="id">HW-05</td><td>Módulo microSD</td><td>Guarda el respaldo en CSV.</td><td>SPI</td></tr>
+<tr><td class="id">HW-06</td><td>Pulsador</td><td>Inicia y detiene el registro.</td><td>GPIO4 (<code>INPUT_PULLUP</code>)</td></tr>
+<tr><td class="id">HW-07</td><td>Batería Li-ion 17350, 3,7 V, 850 mAh</td><td>Alimenta el equipo de forma autónoma.</td><td>—</td></tr>
+<tr><td class="id">HW-08</td><td>Módulo TP4056 con protección DW01A + FS8205</td><td>Carga la batería y la protege.</td><td>USB</td></tr>
+<tr><td class="id">HW-09</td><td>Elevador a 5 V (por ejemplo, MT3608)</td><td>Sube la tensión de la batería para alimentar la placa.</td><td><span class="todo-i">A confirmar si se consiguió</span></td></tr>
 </tbody></table></div>
 <h4>Conexión de pines</h4>
 <div class="tw"><table>
 <thead><tr><th>Señal</th><th>GPIO</th><th>Nota</th></tr></thead>
 <tbody>
-<tr><td>SDA (I2C)</td><td class="id">GPIO21</td><td>Compartido por BMP280, OLED y RTC.</td></tr>
-<tr><td>SCL (I2C)</td><td class="id">GPIO22</td><td>Compartido por BMP280, OLED y RTC.</td></tr>
-<tr><td>CS (microSD)</td><td class="id">GPIO5</td><td>Selección del módulo.</td></tr>
+<tr><td>SDA (I2C)</td><td class="id">GPIO21</td><td>Compartido por BME280, OLED y RTC.</td></tr>
+<tr><td>SCL (I2C)</td><td class="id">GPIO22</td><td>Compartido por BME280, OLED y RTC.</td></tr>
+<tr><td>CS (microSD)</td><td class="id">GPIO13</td><td>Selección del módulo.</td></tr>
 <tr><td>SCK (microSD)</td><td class="id">GPIO18</td><td>Reloj SPI.</td></tr>
 <tr><td>MISO (microSD)</td><td class="id">GPIO19</td><td>Datos hacia el ESP32.</td></tr>
 <tr><td>MOSI (microSD)</td><td class="id">GPIO23</td><td>Datos desde el ESP32.</td></tr>
@@ -749,7 +749,6 @@ main a,main li{overflow-wrap:anywhere}
 <ul>
 <li>La <strong>batería nunca se conecta directo</strong> al pin de 3,3 V. Entra por VIN / 5 V, a través del TP4056 (y del elevador a 5 V, que es lo recomendado).</li>
 <li>El módulo <strong>microSD se alimenta con 5 V</strong>.</li>
-<li>El BMP280 <strong>no mide humedad</strong> (ver el aviso de 5.1).</li>
 </ul></div></div>
 <h4 id="s5-3-1">5.3.1 Visualización 3D</h4>
 <div class="shot"><div><b>Modelo 3D de la carcasa</b>Pegar acá una captura del modelo o el enlace al archivo.</div></div>
@@ -759,13 +758,13 @@ main a,main li{overflow-wrap:anywhere}
 <div class="tw"><table>
 <thead><tr><th>ID</th><th>Componente</th><th>Tecnología</th><th>Rol</th></tr></thead>
 <tbody>
-<tr><td class="id">SW-01</td><td>Firmware del datalogger</td><td>C++ con el núcleo de Arduino para ESP32. Librerías: Adafruit BMP280, Adafruit SSD1306 y GFX, RTClib y ArduinoJson.</td><td>Lee sensores, muestra, guarda en microSD y publica por MQTT.</td></tr>
+<tr><td class="id">SW-01</td><td>Firmware del datalogger</td><td>C++ con el núcleo de Arduino para ESP32. Librerías: Adafruit BME280 (y Unified Sensor), Adafruit SSD1306 y GFX, RTClib y WebServer.</td><td>Lee sensores, muestra, guarda en microSD, sirve la web del prototipo y publica por MQTT en la versión final.</td></tr>
 <tr><td class="id">SW-02</td><td>Broker MQTT</td><td>Eclipse Mosquitto</td><td>Recibe los mensajes del datalogger en el servidor del INTI.</td></tr>
 <tr><td class="id">SW-03</td><td>Servicio de ingesta</td><td><span class="todo-i">A confirmar</span></td><td>Toma los mensajes del broker y los guarda en la base de datos.</td></tr>
 <tr><td class="id">SW-04</td><td>Base de datos</td><td>MariaDB, administrada con phpMyAdmin</td><td>Guarda mediciones, dispositivos y ubicaciones. Incluye vistas y funciones.</td></tr>
-<tr><td class="id">SW-05</td><td>Aplicación web</td><td><span class="todo-i">A confirmar</span> · HTTPS</td><td>Muestra el dashboard, las alertas y la exportación.</td></tr>
+<tr><td class="id">SW-05</td><td>Aplicación web</td><td>HTML, CSS y JavaScript, con Chart.js para las gráficas · HTTPS</td><td>Muestra el dashboard, las alertas y la exportación.</td></tr>
 </tbody></table></div>
-<div class="todo" data-t="Software: completar la tecnología del servicio de ingesta y de la web"><b class="t">A completar por el equipo</b><p>Escribir con qué está hecho el <strong>servicio que pasa los datos del broker a MariaDB</strong> (SW-03) y la <strong>aplicación web</strong> (SW-05). Lo saben Puleo, Risoli y Dabbah (Front End).</p></div>
+<div class="todo" data-t="Software: completar la tecnología del servicio de ingesta (broker a MariaDB)"><b class="t">A completar por el equipo</b><p>Escribir con qué está hecho el <strong>servicio que pasa los datos del broker a MariaDB</strong> (SW-03). Lo saben Puleo y Risoli. Ojo con las unidades: la API del prototipo entrega la presión en pascales (Pa) y la base de datos la guarda en hectopascales (hPa), así que el servicio tiene que dividir por 100.</p></div>
 <p><strong>Flujo de datos:</strong> sensores → ESP32 → (Wi-Fi, MQTT) → broker Mosquitto → servicio de ingesta → MariaDB → vistas → aplicación web → usuario.</p>
 
 <h3 id="s5-5"><span class="n">5.5</span>Interfaces de comunicación</h3>
@@ -903,7 +902,7 @@ main a,main li{overflow-wrap:anywhere}
 <text class="lane-h-t" x="750" y="22" text-anchor="middle">USUARIO · WEB</text>
 
 <rect class="nd-t" x="35" y="52" width="230" height="36" rx="18"/><text x="150" y="75" text-anchor="middle">Inicio: se enciende el equipo</text>
-<rect class="nd" x="35" y="112" width="230" height="44" rx="8"/><text x="150" y="130" text-anchor="middle">Lee el BMP280 y el RTC</text><text class="sm" x="150" y="146" text-anchor="middle">en cada ciclo de muestreo</text>
+<rect class="nd" x="35" y="112" width="230" height="44" rx="8"/><text x="150" y="130" text-anchor="middle">Lee el BME280 y el RTC</text><text class="sm" x="150" y="146" text-anchor="middle">en cada ciclo de muestreo</text>
 <rect class="nd" x="35" y="180" width="230" height="44" rx="8"/><text x="150" y="198" text-anchor="middle">Muestra en la OLED y</text><text x="150" y="214" text-anchor="middle">guarda la fila en la microSD</text>
 <polygon class="nd-d" points="50,285 150,253 250,285 150,317"/><text x="150" y="289" text-anchor="middle">¿Hay Wi-Fi y broker?</text>
 <rect class="nd" x="35" y="350" width="230" height="44" rx="8"/><text x="150" y="368" text-anchor="middle">Publica la medición</text><text x="150" y="384" text-anchor="middle">por MQTT</text>
@@ -981,7 +980,7 @@ main a,main li{overflow-wrap:anywhere}
 <dl class="kv">
 <dt>Gestión</dt><dd>Gantt del equipo (planilla de cálculo) y reuniones de equipo.</dd>
 <dt>Documentación</dt><dd>Esta página y el manual de usuario.</dd>
-<dt>Repositorio</dt><dd>GitHub: código del firmware, base de datos y web.</dd>
+<dt>Repositorio</dt><dd>GitHub: <a href="https://github.com/proyectofinal7ano-spec/G2-Datalogger-7mo-IB">proyectofinal7ano-spec/G2-Datalogger-7mo-IB</a> (firmware, web y base de datos).</dd>
 <dt>Presentaciones</dt><dd>Canva.</dd>
 <dt>Comunicación</dt><dd><span class="todo-i">A completar</span></dd>
 <dt>Diseño de interfaz</dt><dd><span class="todo-i">A completar</span></dd>
@@ -1007,8 +1006,7 @@ main a,main li{overflow-wrap:anywhere}
 <thead><tr><th>Componente</th><th class="r">Cantidad</th><th class="r">Costo unitario</th><th class="r">Subtotal</th></tr></thead>
 <tbody>
 <tr><td>ESP32 DevKit WROOM-32</td><td class="r">1</td><td class="r"><span class="todo-i">$ ?</span></td><td class="r"><span class="todo-i">$ ?</span></td></tr>
-<tr><td>Sensor BMP280</td><td class="r">1</td><td class="r"><span class="todo-i">$ ?</span></td><td class="r"><span class="todo-i">$ ?</span></td></tr>
-<tr><td>Sensor de humedad (BME280 o similar)</td><td class="r">1</td><td class="r"><span class="todo-i">$ ?</span></td><td class="r"><span class="todo-i">$ ?</span></td></tr>
+<tr><td>Sensor BME280</td><td class="r">1</td><td class="r"><span class="todo-i">$ ?</span></td><td class="r"><span class="todo-i">$ ?</span></td></tr>
 <tr><td>Pantalla OLED SSD1306 128×64</td><td class="r">1</td><td class="r"><span class="todo-i">$ ?</span></td><td class="r"><span class="todo-i">$ ?</span></td></tr>
 <tr><td>Reloj RTC DS3231</td><td class="r">1</td><td class="r"><span class="todo-i">$ ?</span></td><td class="r"><span class="todo-i">$ ?</span></td></tr>
 <tr><td>Módulo microSD + tarjeta</td><td class="r">1</td><td class="r"><span class="todo-i">$ ?</span></td><td class="r"><span class="todo-i">$ ?</span></td></tr>
@@ -1159,7 +1157,7 @@ main a,main li{overflow-wrap:anywhere}
 </ul></div></div>
 <ol class="steps">
 <li><h4>Cargá el datalogger <span class="badge b-hw">Usuario del LABI</span></h4><p>Conectá el cable USB al módulo de carga hasta que la batería esté llena. Hacelo antes del ensayo.</p></li>
-<li><h4>Insertá la microSD y encendelo <span class="badge b-hw">Usuario del LABI</span></h4><p>Con la tarjeta puesta, encendé el equipo. La pantalla muestra la fecha, la hora y las mediciones de temperatura y presión.</p><div class="shot"><div><b>Captura de la pantalla del datalogger</b>Foto del equipo encendido.</div></div></li>
+<li><h4>Insertá la microSD y encendelo <span class="badge b-hw">Usuario del LABI</span></h4><p>Con la tarjeta puesta, encendé el equipo. La pantalla muestra la fecha, la hora y las mediciones de temperatura, humedad y presión.</p><div class="shot"><div><b>Captura de la pantalla del datalogger</b>Foto del equipo encendido.</div></div></li>
 <li><h4>Ubicalo en la jaula <span class="badge b-hw">Usuario del LABI</span></h4><p>Colocá el datalogger en el punto definido dentro de la jaula del robot y fijalo para que no se mueva.</p></li>
 <li><h4>Iniciá el registro <span class="badge b-hw">Usuario del LABI</span></h4><p>Presioná el pulsador una vez para empezar a registrar. Con la misma tecla, más adelante, lo detenés.</p></li>
 <li><h4>Entrá a la web <span class="badge b-ok">Director o equipo</span></h4><p>Abrí la dirección de la web del laboratorio e ingresá con tu usuario y contraseña. Vas a ver el dashboard.</p><div class="shot"><div><b>Captura del inicio de sesión</b>Pantalla de ingreso.</div></div></li>
@@ -1171,7 +1169,7 @@ main a,main li{overflow-wrap:anywhere}
 
 <section class="sec" id="s12">
 <h2 class="sec-h"><span class="num">12</span>Preguntas frecuentes</h2>
-<details class="faq"><summary>¿Qué mide el datalogger?</summary><div class="a">Temperatura, humedad y presión, con fecha y hora (RF-01). La humedad depende de confirmar el sensor, porque el BMP280 mide solo temperatura y presión (ver 5.1).</div></details>
+<details class="faq"><summary>¿Qué mide el datalogger?</summary><div class="a">Temperatura, humedad y presión, con fecha y hora (RF-01), con un sensor BME280.</div></details>
 <details class="faq"><summary>¿Qué pasa si se corta el Wi-Fi o el servidor?</summary><div class="a">El datalogger sigue guardando cada medición en la microSD, así que el registro no se pierde (RF-03 y RNF-05). Cómo se cargan después esos datos a la base se define en el testing.</div></details>
 <details class="faq"><summary>¿Cuánto dura la batería?</summary><div class="a">Es una batería Li-ion de 850 mAh. La duración real se mide en el testing con el cliente (RF-08 y RNF-03).</div></details>
 <details class="faq"><summary>¿Qué significa ALERTA?</summary><div class="a">Que una medición está fuera de rango: temperatura de 35 °C o más, humedad de 80 % o más, o presión menor a 990 hPa o mayor a 1020 hPa. La regla está en la función <code>fn_clasificar_estado</code> (5.6).</div></details>
